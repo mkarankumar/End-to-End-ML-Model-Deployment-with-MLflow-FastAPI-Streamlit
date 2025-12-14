@@ -1,8 +1,7 @@
 import streamlit as st
 import requests
 
-st.title("🌸 Iris Classifier (via FastAPI)")
-st.markdown("Enter values to get predictions from the MLflow model hosted via FastAPI.")
+st.title("🌸 Iris Classifier (via FastAPI & MLflow)")
 
 sepal_length = st.slider("Sepal Length (cm)", 4.0, 8.0, 5.1)
 sepal_width = st.slider("Sepal Width (cm)", 2.0, 4.5, 3.5)
@@ -20,8 +19,7 @@ if st.button("Predict"):
     try:
         response = requests.post("http://127.0.0.1:8000/predict/", json=payload)
         if response.status_code == 200:
-            prediction = response.json()["prediction"]
-            st.success(f"Predicted Class: `{prediction}`")
+            st.success(f"Predicted Class: {response.json()['prediction']}")
         else:
             st.error(f"API Error: {response.status_code} — {response.text}")
     except Exception as e:
