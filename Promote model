@@ -1,0 +1,36 @@
+import mlflow
+from mlflow.tracking import MlflowClient 
+from model_train import train_model 
+from data_base import user_data
+
+def promote_to_production(best, uri):
+
+    client = MlflowClient()
+    try:
+        client.create_registered_model(best)
+    except:
+        pass
+    mv = client.create_model_version(name=best, source=uri, run_id=uri.split("/")[1])
+    client.transition_model_version_stage(
+        name=best,
+        version=mv.version,
+        stage="Production"
+    )
+
+    print(f"{best} moved to PRODUCTION")
+
+
+def track_and_predict(input_data):
+    model = mlflow.sklearn.load_model("models:/Iris_Model/Production")
+    with mlflow.start_run(run_name="User_Prediction"):
+        pred = model.predict([input_data])
+        mlflow.log_param("Sepal_Length",input_data[0])
+        mlflow.log_param("Sepal_Width",input_data[1])
+        mlflow.log_param("Petal_Length",input_data[2])
+        mlflow.log_param("Petal_Width",input_data[3])
+        mlflow.log_param("Prediction",pred[0])
+        return pred[0]
+
+
+
+
